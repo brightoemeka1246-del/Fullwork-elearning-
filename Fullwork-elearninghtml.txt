@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fullwork E-Learning — Demo (single file)</title>
+
+  <!-- Tailwind CDN for quick styling (no build step) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Small custom styles */
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .view { display:none; }
+    .view.active { display:block; }
+    /* Print-friendly: strip colors, ensure legibility */
+    @media print {
+      * { color: #000 !important; background: transparent !important; box-shadow: none !important; }
+      nav, .no-print { display: none !important; }
+    }
+    .empty { color:#64748b; font-style:italic; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+  <!-- NAV -->
+  <nav class="bg-white border-b no-print">
+    <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+      <div class="flex items-center gap-4">
+        <a id="navHome" class="text-xl font-semibold cursor-pointer">Fullwork E-Learning</a>
+        <a id="navCourses" class="text-sm text-slate-600 cursor-pointer hidden">Courses</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="navUser" class="text-sm text-slate-600"></div>
+        <button id="btnLogout" class="px-3 py-1 border rounded hidden no-print">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto p-6">
+
+    <!-- HOME / LANDING -->
+    <section id="view-home" class="view active">
+      <header class="flex flex-col md:flex-row items-center gap-6 py-8">
+        <div class="w-full md:w-1/2">
+          <h1 class="text-4xl font-bold">Fullwork E-Learning — Demo</h1>
+          <p class="mt-3 text-slate-600">A front-end demo of the LMS described in your project. Role-based dashboards (Student, Lecturer, Admin), course & assignment simulation, file upload simulation, and local demo accounts.</p>
+          <div class="mt-6 flex gap-3">
+            <button id="openLogin" class="px-5 py-3 bg-indigo-600 text-white rounded shadow no-print">Login</button>
+            <button id="openRegister" class="px-5 py-3 border rounded no-print">Register</button>
+            <a id="openStudentSample" class="px-5 py-3 border rounded cursor-pointer no-print">Open Student Sample</a>
+          </div>
+        </div>
+
+        <div class="w-full md:w-1/2">
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="font-semibold">Quick demo accounts (use these)</h3>
+            <ul class="mt-3 text-sm text-slate-600 space-y-1">
+              <li><strong>student@example.com</strong> / <em>pass</em> — Student</li>
+              <li><strong>lecturer@example.com</strong> / <em>pass</em> — Lecturer</li>
+              <li><strong>admin@example.com</strong> / <em>pass</em> — Admin</li>
+            </ul>
+            <p class="mt-3 text-xs text-slate-500">Or register a demo account — data is stored only in this browser's localStorage.</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded shadow">
+          <h4 class="font-semibold">Course Management</h4>
+          <p class="mt-2 text-sm text-slate-600">Create, update and view course information (simulated).</p>
+        </div>
+        <div class="bg-white p-5 rounded shadow">
+          <h4 class="font-semibold">Assignments & Uploads</h4>
+          <p class="mt-2 text-sm text-slate-600">Students can submit assignments; lecturers can view submissions (simulated files).</p>
+        </div>
+        <div class="bg-white p-5 rounded shadow">
+          <h4 class="font-semibold">Role-based dashboards</h4>
+          <p class="mt-2 text-sm text-slate-600">Admin, Lecturer and Student dashboards with relevant tools.</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- AUTH MODAL (simple inline form area) -->
+    <div id="authArea" class="view no-print" style="display:none;">
+      <div class="bg-white p-6 rounded shadow">
+        <div class="flex gap-6 flex-col md:flex-row">
+          <div class="w-full md:w-1/2">
+            <h3 id="authTitle" class="text-xl font-semibold">Login</h3>
+            <form id="loginForm" class="mt-3 space-y-3">
+              <div>
+                <label class="text-sm">Email</label>
+                <input id="loginEmail" required class="w-full mt-1 p-2 border rounded" placeholder="you@example.com" />
+              </div>
+              <div>
+                <label class="text-sm">Password</label>
+                <input id="loginPassword" type="password" required class="w-full mt-1 p-2 border rounded" placeholder="password" />
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-slate-600">Demo only — no backend</div>
+                <div class="flex gap-2">
+                  <button type="button" id="toRegister" class="px-3 py-1 border rounded">Register</button>
+                  <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Login</button>
+                </div>
+              </div>
+              <div id="loginMsg" class="text-sm text-red-600 hidden"></div>
+            </form>
+          </div>
+
+          <div class="w-full md:w-1/2 bg-slate-50 p-4 rounded">
+            <h4 class="font-semibold">Create demo account</h4>
+            <form id="registerForm" class="mt-3 space-y-3">
+              <div><input id="regName" placeholder="Full name" class="w-full p-2 border rounded" /></div>
+              <div><input id="regEmail" placeholder="Email" class="w-full p-2 border rounded" /></div>
+              <div><input id="regPassword" type="password" placeholder="Password" class="w-full p-2 border rounded" /></div>
+              <div>
+                <select id="regRole" class="w-full p-2 border rounded">
+                  <option value="student">Student</option>
+                  <option value="lecturer">Lecturer</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div class="flex justify-between">
+                <div id="regMsg" class="text-sm text-green-600 hidden"></div>
+                <div class="flex gap-2">
+                  <button type="button" id="toLogin" class="px-3 py-1 border rounded">Back to Login</button>
+                  <button id="doRegister" type="button" class="px-4 py-2 bg-green-600 text-white rounded">Register</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button id="authBack" class="px-3 py-1 border rounded">Back to Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENT DASHBOARD -->
+    <section id="view-student" class="view bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-bold mb-4">Student Dashboard</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">My Courses</h4>
+          <ul id="studentCourses" class="mt-3 space-y-2 text-sm"></ul>
+        </div>
+
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">Assignments</h4>
+          <ul id="studentAssignments" class="mt-3 space-y-3 text-sm"></ul>
+        </div>
+
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">Submit Assignment</h4>
+          <form id="studentSubmit" class="mt-3 space-y-2">
+            <select id="studentCourseSelect" class="w-full p-2 border rounded"></select>
+            <input id="studentAsgTitle" placeholder="Title" class="w-full p-2 border rounded" />
+            <textarea id="studentAsgText" placeholder="Short note or link" class="w-full p-2 border rounded"></textarea>
+            <div class="flex justify-end">
+              <button class="px-4 py-2 bg-indigo-600 text-white rounded" type="submit">Submit</button>
+            </div>
+            <div id="studentSubmitMsg" class="text-sm text-green-600 hidden"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- LECTURER DASHBOARD -->
+    <section id="view-lecturer" class="view bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-bold mb-4">Lecturer Dashboard</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">My Courses</h4>
+          <ul id="lecturerCourses" class="mt-3 space-y-2 text-sm"></ul>
+
+          <h5 class="mt-4 font-medium">Create New Course</h5>
+          <form id="createCourseForm" class="mt-2 space-y-2">
+            <input id="courseName" placeholder="Course name" class="w-full p-2 border rounded" />
+            <textarea id="courseDesc" placeholder="Short description" class="w-full p-2 border rounded"></textarea>
+            <div class="flex justify-end">
+              <button class="px-4 py-2 bg-green-600 text-white rounded" type="submit">Create Course</button>
+            </div>
+            <div id="createCourseMsg" class="text-sm text-green-600 hidden"></div>
+          </form>
+        </div>
+
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">Upload Material</h4>
+          <form id="uploadForm" class="mt-3 space-y-2">
+            <select id="uploadCourseSelect" class="w-full p-2 border rounded"></select>
+            <input id="materialTitle" placeholder="Title (Week 1, Slides...)" class="w-full p-2 border rounded" />
+            <input id="materialLink" placeholder="Optional link or filename" class="w-full p-2 border rounded" />
+            <div class="flex justify-end">
+              <button class="px-4 py-2 bg-indigo-600 text-white rounded" type="submit">Upload</button>
+            </div>
+            <div id="uploadMsg" class="text-sm text-green-600 hidden"></div>
+          </form>
+
+          <h5 class="mt-6 font-medium">Student Submissions</h5>
+          <div id="lecturerSubmissions" class="mt-3 text-sm space-y-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="view-admin" class="view bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">Manage Users</h4>
+          <ul id="adminUsers" class="mt-3 space-y-2 text-sm"></ul>
+
+          <h5 class="mt-4 font-medium">Create Demo User</h5>
+          <form id="adminCreateForm" class="mt-2 space-y-2">
+            <input id="adminName" placeholder="Full name" class="w-full p-2 border rounded" />
+            <input id="adminEmail" placeholder="Email" class="w-full p-2 border rounded" />
+            <select id="adminRole" class="w-full p-2 border rounded">
+              <option value="student">Student</option>
+              <option value="lecturer">Lecturer</option>
+              <option value="admin">Admin</option>
+            </select>
+            <div class="flex justify-end">
+              <button class="px-4 py-2 bg-green-600 text-white rounded" type="submit">Create User</button>
+            </div>
+            <div id="adminCreateMsg" class="text-sm text-green-600 hidden"></div>
+          </form>
+        </div>
+
+        <div class="p-4 border rounded">
+          <h4 class="font-semibold">Manage Courses</h4>
+          <ul id="adminCourses" class="mt-3 space-y-2 text-sm"></ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SCRIPT: app logic (all client side, localStorage) -->
+  <script>
+  (function(){
+    /* ---------- Demo seed data ---------- */
+    const demoUsers = [
+      { id: 1, name: "Demo Student", email: "student@example.com", password: "pass", role: "student" },
+      { id: 2, name: "Demo Lecturer", email: "lecturer@example.com", password: "pass", role: "lecturer" },
+      { id: 3, name: "Demo Admin", email: "admin@example.com", password: "pass", role: "admin" }
+    ];
+    const demoCourses = [
+      { id: 1, title: "Intro to Web Dev", desc: "HTML, CSS, JS basics", lecturerId: 2 },
+      { id: 2, title: "Database Fundamentals", desc: "SQL basics and design", lecturerId: 2 }
+    ];
+    const demoAssignments = [
+      { id: 1, courseId: 1, title: "Build a landing page", submissions: [] },
+      { id: 2, courseId: 2, title: "Design ER diagram", submissions: [] }
+    ];
+
+    function seedIfEmpty(key, value) {
+      if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value));
+    }
+    seedIfEmpty('fw_users', demoUsers);
+    seedIfEmpty('fw_courses', demoCourses);
+    seedIfEmpty('fw_assignments', demoAssignments);
+
+    /* ---------- Storage helpers ---------- */
+    const usersKey='fw_users', coursesKey='fw_courses', assignsKey='fw_assignments', currentKey='fw_current';
+    const load = k => JSON.parse(localStorage.getItem(k) || '[]');
+    const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+    const getCurrent = () => JSON.parse(localStorage.getItem(currentKey) || 'null');
+    const setCurrent = u => localStorage.setItem(currentKey, JSON.stringify(u));
+    const clearCurrent = () => localStorage.removeItem(currentKey);
+
+    /* ---------- View management ---------- */
+    const views = { home: 'view-home', auth: 'authArea', student: 'view-student', lecturer: 'view-lecturer', admin: 'view-admin' };
+    function showView(name) {
+      Object.values(views).forEach(id => document.getElementById(id).classList.remove('active'));
+      const el = document.getElementById(views[name]);
+      if (el) el.classList.add('active');
+      // update nav visibility
+      document.getElementById('navCourses').classList.toggle('hidden', name==='home' || name==='auth');
+      const cur = getCurrent();
+      document.getElementById('navUser').textContent = cur ? (cur.name + ' • ' + cur.role) : '';
+      document.getElementById('btnLogout').classList.toggle('hidden', !cur);
+      renderPage(name);
+      // scroll to top
+      window.scrollTo(0,0);
+    }
+
+    /* ---------- Renderers for each view ---------- */
+    function renderPage(name) {
+      if (name === 'student') renderStudent();
+      if (name === 'lecturer') renderLecturer();
+      if (name === 'admin') renderAdmin();
+      if (name === 'home') { /* nothing extra */ }
+    }
+
+    /* ---------- Home / Auth handlers ---------- */
+    document.getElementById('openLogin').addEventListener('click', ()=> showView('auth'));
+    document.getElementById('openRegister').addEventListener('click', ()=> showView('auth'));
+    document.getElementById('openStudentSample').addEventListener('click', ()=> {
+      // set demo student and go
+      const users = load(usersKey);
+      const s = users.find(u=>u.role==='student');
+      if (s) { setCurrent(s); showView('student'); } else alert('No demo student found.');
+    });
+
+    // Nav home
+    document.getElementById('navHome').addEventListener('click', ()=> {
+      clearCurrent();
+      showView('home');
+    });
+
+    // Login form
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const pwd = document.getElementById('loginPassword').value;
+      const users = load(usersKey);
+      const user = users.find(u => u.email.toLowerCase() === email && u.password === pwd);
+      const msg = document.getElementById('loginMsg');
+      if (!user) {
+        msg.textContent = 'Invalid email or password (use demo accounts shown on home).';
+        msg.classList.remove('hidden');
+        return;
+      }
+      msg.classList.add('hidden');
+      setCurrent(user);
+      // route by role
+      if (user.role === 'student') showView('student');
+      else if (user.role === 'lecturer') showView('lecturer');
+      else if (user.role === 'admin') showView('admin');
+      else showView('home');
+    });
+
+    // Switch to register/login
+    document.getElementById('toRegister').addEventListener('click', ()=> {
+      document.getElementById('authTitle').textContent = 'Register';
+    });
+    document.getElementById('toLogin').addEventListener('click', ()=> {
+      document.getElementById('authTitle').textContent = 'Login';
+    });
+    document.getElementById('authBack').addEventListener('click', ()=> showView('home'));
+
+    // Do register
+    document.getElementById('doRegister').addEventListener('click', ()=> {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const pwd = document.getElementById('regPassword').value || 'pass';
+      const role = document.getElementById('regRole').value;
+      const regMsg = document.getElementById('regMsg');
+      if (!name || !email) { regMsg.textContent = 'Name and email required.'; regMsg.classList.remove('hidden'); return; }
+      const users = load(usersKey);
+      if (users.find(u=>u.email===email)) { regMsg.textContent = 'Email already exists.'; regMsg.classList.remove('hidden'); return; }
+      const newUser = { id: Date.now(), name, email, password: pwd, role };
+      users.push(newUser); save(usersKey, users);
+      regMsg.textContent = 'Registered. You can login now.'; regMsg.classList.remove('hidden');
+      setTimeout(()=> { regMsg.classList.add('hidden'); document.getElementById('regName').value=''; document.getElementById('regEmail').value=''; document.getElementById('regPassword').value=''; }, 2000);
+    });
+
+    /* ---------- Logout ---------- */
+    document.getElementById('btnLogout').addEventListener('click', ()=> {
+      clearCurrent();
+      showView('home');
+    });
+
+    /* ---------- Student functions ---------- */
+    function renderStudent() {
+      const cur = getCurrent();
+      if (!cur || cur.role !== 'student') { alert('Not authorized.'); clearCurrent(); showView('home'); return; }
+
+      // populate courses
+      const courses = load(coursesKey);
+      const studentCoursesEl = document.getElementById('studentCourses');
+      studentCoursesEl.innerHTML = courses.length ? courses.map(c=>`<li class="p-2 border rounded">${c.title}<div class="text-xs text-slate-500">${c.desc}</div></li>`).join('') : '<div class="empty p-2">No courses yet</div>';
+
+      // populate assignments
+      const assignments = load(assignsKey);
+      const assignsEl = document.getElementById('studentAssignments');
+      assignsEl.innerHTML = assignments.length ? assignments.map(a=>{
+        const course = courses.find(c=>c.id===a.courseId) || {title:'Unknown'};
+        return `<li class="p-2 border rounded"><div class="font-medium">${a.title}</div><div class="text-xs text-slate-500">Course: ${course.title}</div></li>`;
+      }).join('') : '<div class="empty p-2">No assignments yet</div>';
+
+      // course select
+      const select = document.getElementById('studentCourseSelect');
+      select.innerHTML = courses.map(c=>`<option value="${c.id}">${c.title}</option>`).join('');
+
+      // clear submit msg
+      document.getElementById('studentSubmitMsg').classList.add('hidden');
+    }
+
+    // submit assignment
+    document.getElementById('studentSubmit').addEventListener('submit', (e)=> {
+      e.preventDefault();
+      const cur = getCurrent();
+      if (!cur) return alert('Please login.');
+      const courseId = Number(document.getElementById('studentCourseSelect').value);
+      const title = document.getElementById('studentAsgTitle').value.trim();
+      const text = document.getElementById('studentAsgText').value.trim();
+      if (!title) return;
+      const assigns = load(assignsKey);
+      let target = assigns.find(a=>a.courseId===courseId);
+      if (!target) {
+        target = { id: Date.now(), courseId, title: `Submitted: ${title}`, submissions: [] };
+        assigns.push(target);
+      }
+      target.submissions = target.submissions || [];
+      target.submissions.push({ id: Date.now(), studentId: cur.id, studentName: cur.name, title, text, date: new Date().toISOString() });
+      save(assignsKey, assigns);
+      const msg = document.getElementById('studentSubmitMsg');
+      msg.textContent = 'Assignment submitted (demo).';
+      msg.classList.remove('hidden');
+      setTimeout(()=> msg.classList.add('hidden'), 2500);
+      document.getElementById('studentAsgTitle').value=''; document.getElementById('studentAsgText').value='';
+      renderStudent();
+    });
+
+    /* ---------- Lecturer functions ---------- */
+    function renderLecturer() {
+      const cur = getCurrent();
+      if (!cur || cur.role !== 'lecturer') { alert('Not authorized.'); clearCurrent(); showView('home'); return; }
+      const courses = load(coursesKey);
+      const myCourses = courses.filter(c=>c.lecturerId===cur.id);
+      document.getElementById('lecturerCourses').innerHTML = myCourses.length ? myCourses.map(c=>`<li class="p-2 border rounded">${c.title}<div class="text-xs text-slate-500">${c.desc}</div></li>`).join('') : '<div class="empty p-2">You have no courses yet</div>';
+      document.getElementById('uploadCourseSelect').innerHTML = courses.map(c=>`<option value="${c.id}">${c.title}</option>`).join('');
+
+      // submissions for your courses
+      const assigns = load(assignsKey);
+      const subs = assigns.filter(a => myCourses.some(mc => mc.id === a.courseId)).flatMap(a => (a.submissions || []).map(s => ({aTitle: a.title, ...s})));
+      const subsArea = document.getElementById('lecturerSubmissions');
+      subsArea.innerHTML = subs.length ? subs.map(s=>`<div class="p-2 border rounded"><div class="font-medium">${s.aTitle} — ${s.title}</div><div class="text-xs text-slate-500">${s.studentName} • ${new Date(s.date).toLocaleString()}</div><div class="text-sm mt-1">${s.text}</div></div>`).join('') : '<div class="empty p-2">No submissions yet</div>';
+    }
+
+    // create course
+    document.getElementById('createCourseForm').addEventListener('submit', (e)=> {
+      e.preventDefault();
+      const cur = getCurrent();
+      if (!cur || cur.role!=='lecturer') return;
+      const name = document.getElementById('courseName').value.trim();
+      const desc = document.getElementById('courseDesc').value.trim();
+      if (!name) return;
+      const courses = load(coursesKey);
+      courses.push({ id: Date.now(), title: name, desc, lecturerId: cur.id });
+      save(coursesKey, courses);
+      document.getElementById('createCourseMsg').textContent = 'Course created (demo).';
+      document.getElementById('createCourseMsg').classList.remove('hidden');
+      setTimeout(()=> document.getElementById('createCourseMsg').classList.add('hidden'), 2000);
+      document.getElementById('courseName').value=''; document.getElementById('courseDesc').value='';
+      renderLecturer();
+    });
+
+    // upload material (simulated)
+    document.getElementById('uploadForm').addEventListener('submit', (e)=> {
+      e.preventDefault();
+      const cur = getCurrent(); if (!cur || cur.role!=='lecturer') return;
+      const courseId = Number(document.getElementById('uploadCourseSelect').value);
+      const title = document.getElementById('materialTitle').value.trim();
+      const link = document.getElementById('materialLink').value.trim();
+      if (!title) return;
+      const courses = load(coursesKey);
+      const c = courses.find(x=>x.id===courseId);
+      if (c) {
+        c.desc = (c.desc || '') + `\nMaterial: ${title}${link?` (${link})`:''}`;
+        save(coursesKey, courses);
+        document.getElementById('uploadMsg').textContent = 'Material uploaded (demo).';
+        document.getElementById('uploadMsg').classList.remove('hidden');
+        setTimeout(()=> document.getElementById('uploadMsg').classList.add('hidden'), 2000);
+        document.getElementById('materialTitle').value=''; document.getElementById('materialLink').value='';
+        renderLecturer();
+      }
+    });
+
+    /* ---------- Admin functions ---------- */
+    function renderAdmin() {
+      const cur = getCurrent();
+      if (!cur || cur.role !== 'admin') { alert('Not authorized.'); clearCurrent(); showView('home'); return; }
+      const users = load(usersKey);
+      const userListEl = document.getElementById('adminUsers');
+      userListEl.innerHTML = users.map(u=>`<li class="p-2 border rounded flex justify-between items-center"><div><div class="font-medium">${u.name}</div><div class="text-xs text-slate-500">${u.email} • ${u.role}</div></div><div><button data-id="${u.id}" class="delUser px-2 py-1 text-xs border rounded">Delete</button></div></li>`).join('');
+      // attach delete handlers
+      Array.from(document.querySelectorAll('.delUser')).forEach(btn=> btn.addEventListener('click',(e)=>{
+        const id = Number(e.currentTarget.getAttribute('data-id'));
+        let ulist = load(usersKey).filter(u=>u.id!==id);
+        save(usersKey, ulist);
+        renderAdmin();
+      }));
+      // courses
+      const courses = load(coursesKey);
+      document.getElementById('adminCourses').innerHTML = courses.map(c=>`<li class="p-2 border rounded">${c.title}<div class="text-xs text-slate-500">${c.desc}</div></li>`).join('');
+    }
+
+    // admin create user
+    document.getElementById('adminCreateForm').addEventListener('submit', (e)=> {
+      e.preventDefault();
+      const name = document.getElementById('adminName').value.trim();
+      const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+      const role = document.getElementById('adminRole').value;
+      if (!name || !email) return;
+      const users = load(usersKey);
+      if (users.find(u=>u.email===email)) { alert('Email exists'); return; }
+      users.push({ id: Date.now(), name, email, password: 'pass', role });
+      save(usersKey, users);
+      document.getElementById('adminCreateMsg').textContent = 'User created.';
+      document.getElementById('adminCreateMsg').classList.remove('hidden');
+      setTimeout(()=> document.getElementById('adminCreateMsg').classList.add('hidden'), 2000);
+      document.getElementById('adminName').value=''; document.getElementById('adminEmail').value='';
+      renderAdmin();
+    });
+
+    /* ---------- Page init: route to proper view if logged in ---------- */
+    // on load, if user stored, route
+    window.addEventListener('DOMContentLoaded', ()=> {
+      const current = getCurrent();
+      if (!current) {
+        showView('home');
+      } else {
+        if (current.role === 'student') showView('student');
+        else if (current.role === 'lecturer') showView('lecturer');
+        else if (current.role === 'admin') showView('admin');
+        else showView('home');
+      }
+    });
+
+    /* ---------- Small helper: keep nav updated after login/logout ---------- */
+    // Attach delegated click to navCourses if used later (no-op)
+  })();
+  </script>
+</body>
+</html>
